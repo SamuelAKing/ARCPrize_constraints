@@ -127,13 +127,11 @@ def puzzle_6e453dd6(input,output):
                             if row_idx == 0:
                                 i = row_idx
                                 k = pixel_idx
-                                # print([padded_output[i+neighbor[0]+1][k+neighbor[1]+1] in [COLOR_mapping['black'],COLOR_mapping['pink']] for neighbor in [[0,1],[1,0],[0,-1],[-1,0]]])
     tests = []
     for i in range(len(input)):
         for k in range(len(input[0])):
             tests.append((COLOR_mapping['gray'] in output[i][0:k] and i in rows_with_red) is (output[i][k] == COLOR_mapping['red']))
     constraints.append(False not in tests)
-    # print(tests,rows_with_red)
 
     #Constraint: In the output, each pixel is pink, unless it is grey in the input, it is red, or it is black.
     is_correct = True
@@ -143,30 +141,7 @@ def puzzle_6e453dd6(input,output):
                 is_correct = False
     constraints.append(is_correct)
 
-    # print(constraints)
-
     return False not in constraints
 
 # print(test_constraints(puzzle_16b78196,"16b78196",0.001,10000)) returned True
-print(test_constraints(puzzle_6e453dd6,"6e453dd6",0.001,10000,2))
-
-# puzzle_id = "6e453dd6"
-# file = open("evaluation/"+puzzle_id+".json")
-# data = json.load(file)
-# file.close()
-
-# example = data['train'][0]
-# exout = example['output']
-
-# case = [[[0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [0, 0, 6, 0, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 0, 6, 0, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 0, 6, 0, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 0, 6, 0, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 0, 0, 0, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6]], [[6, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 0, 0, 6, 0, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 5, 2, 6, 2, 2], [6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 5, 2, 2, 2, 2], [6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 5, 2, 2, 2, 2], [6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 5, 2, 2, 2, 2], [6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 5, 2, 2, 2, 2], [6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6, 6], [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6]]]
-# input = case[0]
-# output = case[1]
-
-
-# for i in range(len(input)):
-#     for k in range(len(input[0])):
-#         if exout[i][k] != output[i][k]:
-#             print(i,k)
-#             print(exout[i][k],output[i][k])
-
-# print(puzzle_6e453dd6(input,output))
+# print(test_constraints(puzzle_6e453dd6,"6e453dd6",0.001,10000)) returned True
