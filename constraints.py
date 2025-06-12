@@ -143,5 +143,66 @@ def puzzle_6e453dd6(input,output):
 
     return False not in constraints
 
+def puzzle_71e489b6(input,output):
+    
+    #Definition: An irregularity is a pixel that is part of a one-colored shape of connectivity 8 containing less than 4 pixels or a pixel that doesn’t have at least 2 orthogonal neighbors that are the same color as itself, or 1 if it is adjacent to the border.
+    blue_black_input_shapes = find_shapes(input,8,[COLOR_mapping['blue']])+find_shapes(input,8,[COLOR_mapping['black']])
+    irregularities = []
+    for input_shape in blue_black_input_shapes:
+        pixels = 0
+        for row in input_shape.grid:
+            for pixel in row:
+                if pixel != -1:
+                    pixels += 1
+        if pixels < 4:
+            for i in range(len(input_shape.grid)):
+                for k in range(len(input_shape.grid[0])):
+                    if input_shape.grid[i][k] != -1:
+                        irregularities.append([i,k])
+    padded_input = [[input[i][k] if (i in range(len(input)) and k in range(len(input[0]))) else -1 for k in range(-1,len(input[0])+1)] for i in range(-1,len(input)+1)]
+    for i in range(len(input)):
+        for k in range(len(input[0])):
+            if [i,k] not in irregularities:
+                same_neighbors = 0
+                for neighbor in [[0,1],[1,0],[0,-1],[-1,0]]:
+                    if padded_input[i+neighbor[0]+1][k+neighbor[1]+1] == input[i][k]:
+                        same_neighbors += 1
+                if same_neighbors < 2-(i in [0,len(input)-1] or k in [0,len(input[0])-1]):
+                    irregularities.append([i,k])
+
+    constraints = []
+
+    #Constraint: The output is of the same dimensions as the input.
+    constraints.append(len(input)==len(output) and len(input[0])==len(output[0]))
+
+    #Constraint: A pixel is orange in the output if and only if is is orthogonally or diagonally adjacent to a black irregularity in the input and it is not a black irregularity in the input.
+    is_correct = True
+    for i in range(len(input_shape.grid)):
+        for k in range(len(input_shape.grid[0])):
+            if (output[i][k] == COLOR_mapping['orange']) != (True in [[i+neighbor[0],k+neighbor[1]] in irregularities and input[i+neighbor[0]][k+neighbor[1]] == COLOR_mapping['black'] for neighbor in [[0,1],[1,0],[0,-1],[-1,0],[1,1],[-1,1],[1,-1],[-1,-1]]] and not([i,k] in irregularities and input[i][k] == COLOR_mapping['black'])):
+                is_correct = False
+    constraints.append(is_correct)
+
+    #Constraint: Unless it is orange in the output, each pixel that is a blue irregularity in the input is black in the output.
+    is_correct = True
+    for i in range(len(input_shape.grid)):
+        for k in range(len(input_shape.grid[0])):
+            if output[i][k] != COLOR_mapping['orange']:
+                if (input[i][k]==COLOR_mapping['blue'] and [i,k] in irregularities) and not (output[i][k]==COLOR_mapping['black']):
+                    is_correct = False
+    constraints.append(is_correct)
+
+    #Constraint: Unless it is orange or it is a blue irregularity in the input, each pixel in the output is of the same color as in the input.
+    is_correct = True
+    for i in range(len(input_shape.grid)):
+        for k in range(len(input_shape.grid[0])):
+            if not(output[i][k] == COLOR_mapping['orange'] or (input[i][k]==COLOR_mapping['blue'] and [i,k] in irregularities)):
+                if input[i][k] != output[i][k]:
+                    is_correct = False
+    constraints.append(is_correct)
+
+    return False not in constraints             
+
 # print(test_constraints(puzzle_16b78196,"16b78196",0.001,10000)) returned True
 # print(test_constraints(puzzle_6e453dd6,"6e453dd6",0.001,10000)) returned True
+print(test_constraints(puzzle_71e489b6,"71e489b6",0.004,10000,2))

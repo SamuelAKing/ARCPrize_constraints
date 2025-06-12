@@ -51,7 +51,7 @@ class Shape:
 
     def distance(self,point1,point2):
         #The distance between two pixels in a shape is the minimum number of steps between adjacent pixels in the shape needed to go from one pixel to the other.
-        padded_grid = [[self.grid[i][k] if (i in range(len(self.grid[0])) and k in range(len(self.grid))) else -1 for i in range(-1,len(self.grid[0])+1)]for k in range(-1,len(self.grid)+1)] #adds a row and colum of -1 on all sides
+        padded_grid = [[self.grid[i][k] if (i in range(len(self.grid)) and k in range(len(self.grid[0]))) else -1 for k in range(-1,len(self.grid[0])+1)]for i in range(-1,len(self.grid)+1)] #adds a row and colum of -1 on all sides
         dist = 0
         points = [point1]
         points_seen = points
