@@ -12,7 +12,7 @@ def puzzle_16b78196(input,output):
 
     #Definition: The divider is the shape that contains a full column or a full row. If it contains a full row, it is horizontal, and if it contains a full column, it is vertical.
     def divider(shapes):
-        #the divider is a list containing a shape and a string from ['horizontal','vertical'] that states whether the divider is horizontal or vertical
+        #the divider is a list containing a shape and a string in ['horizontal','vertical'] that states whether the divider is horizontal or vertical
         for shape in shapes:
             if True in [-1 not in row for row in shape.grid]:
                 return [shape,'horizontal']
@@ -201,8 +201,103 @@ def puzzle_71e489b6(input,output):
                     is_correct = False
     constraints.append(is_correct)
 
-    return False not in constraints             
+    return False not in constraints
+
+def puzzle_78332cb0(input,output):
+
+    constraints = []
+
+    #Constraint: Each shape of connectivity 4 and of non-pink colors in the input is translationally equal to a shape of connectivity 4 and of non-pink colors in the output.
+    input_shapes = find_shapes(input,4,[color for color in COLORS if color != COLOR_mapping['pink']])
+    output_shapes = find_shapes(output,4,[color for color in COLORS if color != COLOR_mapping['pink']])
+    constraints.append(False not in [True in [input_shape.translationally_equals(output_shape) for output_shape in output_shapes] for input_shape in input_shapes])
+
+    #Constraint: The number of shapes of connectivity 4 and of non-pink colors is the same in the input and the output.
+    constraints.append(len(input_shapes)==len(output_shapes))
+
+    #Constraint: In the output, each pink pixel in the output is orthogonally adjacent to exactly two non-pink pixels: either they are both of the color of the background or neither of them is.
+    _,background_color = find_background(output)
+    padded_output = [[output[i][k] if (i in range(len(output)) and k in range(len(output[0]))) else -1 for k in range(-1,len(output[0])+1)]for i in range(-1,len(output)+1)]
+    is_correct = True
+    for i in range(len(output)):
+        for k in range(len(output[0])):
+            if output[i][k] == COLOR_mapping['pink']:
+                neighbors = [padded_output[i+neighbor[0]+1][k+neighbor[1]+1] for neighbor in [[0,1],[1,0],[0,-1],[-1,0]]]
+                if not(neighbors.count(COLOR_mapping['pink']) + neighbors.count(-1) == 2 and (neighbors.count(background_color) == 2 or neighbors.count(background_color) == 0)):
+                    is_correct = False
+    constraints.append(is_correct)
+
+    #Constraint: In the output, in each pink shape of connectivity 4, there is exactly one pixel that is orthogonally adjacent to exactly two non-pink pixels that both aren’t of the color of the background.
+    pink_shapes = find_shapes(output,4,[COLOR_mapping['pink']])
+    is_correct = True
+    for pink_shape in pink_shapes:
+        neighbors = []
+        for i in range(len(output)):
+            for k in range(len(output[0])):
+                if pink_shape.grid[i][k] == COLOR_mapping['pink']:
+                    neighbors.append([padded_output[i+neighbor[0]+1][k+neighbor[1]+1] for neighbor in [[0,1],[1,0],[0,-1],[-1,0]]].count(background_color))
+        if neighbors.count(0) != 1:
+            is_correct = False
+    constraints.append(is_correct)
+
+    return False not in constraints
+
+def puzzle_7b5033c1(input,output):
+
+    constraints = []
+
+    #Constraint: The dimensions of the output are (1, number of non-background pixels in the input).
+    background,background_color = find_background(input)
+    num_pixels = 0
+    for row in background:
+        for pixel in row:
+            if pixel == -1:
+                num_pixels += 1
+    constraints.append(len(output)==num_pixels and len(output[0])==1)
+
+    #Constraint: A pixel in the input and a pixel in the output that are both in the shape of non-background colours and of connectivity 4 and that have the same distance this shape from the highest non-background pixel that only has one non-background neighbor are of the same color.
+    is_correct = True
+    input_shape = find_shapes(input,4,[color for color in COLORS if color != background_color])[0]
+    output_shape = find_shapes(output,4,[color for color in COLORS if color != background_color])[0]
+    padded_input_shape = [[input_shape.grid[i][k] if (i in range(len(input_shape.grid)) and k in range(len(input_shape.grid[0]))) else -1 for k in range(-1,len(input_shape.grid[0])+1)]for i in range(-1,len(input_shape.grid)+1)]
+    padded_output_shape = [[output_shape.grid[i][k] if (i in range(len(output_shape.grid)) and k in range(len(output_shape.grid[0]))) else -1 for k in range(-1,len(output_shape.grid[0])+1)]for i in range(-1,len(output_shape.grid)+1)]
+    input_pixels_one_neighbor = []
+    output_pixels_one_neighbor = []
+    for i in range(len(input)):
+        for k in range(len(input[0])):
+            if input_shape.grid[i][k] != -1:
+                if [padded_input_shape[i+neighbor[0]+1][k+neighbor[1]+1] != -1 for neighbor in [[0,1],[1,0],[0,-1],[-1,0]]].count(True) == 1:
+                    input_pixels_one_neighbor.append([i,k])
+    for i in range(len(output)):
+        for k in range(len(output[0])):
+            if output_shape.grid[i][k] != -1:
+                if [padded_output_shape[i+neighbor[0]+1][k+neighbor[1]+1] != -1 for neighbor in [[0,1],[1,0],[0,-1],[-1,0]]].count(True) == 1:
+                    output_pixels_one_neighbor.append([i,k])
+    if len(output_pixels_one_neighbor)>0:
+        highest_input_pixel = [point for point in input_pixels_one_neighbor if min([point_[0] for point_ in input_pixels_one_neighbor])==point[0]][0]
+        highest_output_pixel = [point for point in output_pixels_one_neighbor if min([point_[0] for point_ in output_pixels_one_neighbor])==point[0]][0]
+        input_pixel_distance = []
+        output_pixel_distance = []
+        for i in range(len(input)):
+            for k in range(len(input[0])):
+                if input_shape.grid[i][k] != -1:
+                    input_pixel_distance.append([input_shape.grid[i][k],input_shape.distance([i,k],highest_input_pixel)])
+        for i in range(len(output)):
+            for k in range(len(output[0])):
+                if output_shape.grid[i][k] != -1:
+                    output_pixel_distance.append([output_shape.grid[i][k],output_shape.distance([i,k],highest_output_pixel)])
+        constraints.append(set(frozenset(sublist) for sublist in input_pixel_distance)==set(frozenset(sublist) for sublist in output_pixel_distance))
+        for sublist in input_pixel_distance:
+            if sublist not in output_pixel_distance:
+                is_correct = False
+        constraints.append(is_correct and len(input_pixel_distance)==len(output_pixel_distance))
+    else:
+        constraints.append(False)
+
+    return False not in constraints
 
 # print(test_constraints(puzzle_16b78196,"16b78196",0.001,10000)) returned True
 # print(test_constraints(puzzle_6e453dd6,"6e453dd6",0.001,10000)) returned True
-print(test_constraints(puzzle_71e489b6,"71e489b6",0.004,10000,2))
+# print(test_constraints(puzzle_71e489b6,"71e489b6",0.004,10000)) returned True
+# print(test_constraints(puzzle_78332cb0,"78332cb0",0.004,10000)) returned True
+# print(test_constraints(puzzle_7b5033c1,"7b5033c1",0.050,10000)) returned True

@@ -57,7 +57,7 @@ class Shape:
         points_seen = points
         if self.connectivity == 4:
             neighbors = [[0,1],[1,0],[0,-1],[-1,0]]
-        if self.connectivity == 4:
+        if self.connectivity == 8:
             neighbors = [[0,1],[1,0],[0,-1],[-1,0],[1,1],[-1,1],[1,-1],[-1,-1]]
         while True:
             if point2 in points:
@@ -72,10 +72,10 @@ class Shape:
             points = new_points
             dist += 1
 
-def background(grid):
+def find_background(grid):
     #Background: the background is the set of all pixels of the most common color.
     flat_grid = [pixel for row in grid for pixel in row]
-    return [[pixel if pixel==max(set(flat_grid), key=flat_grid.count) else -1 for pixel in row] for row in grid]
+    return [[pixel if pixel==max(set(flat_grid), key=flat_grid.count) else -1 for pixel in row] for row in grid],max(set(flat_grid), key=flat_grid.count)
     
 def find_shapes(grid,connectivity,colors): #finds all the shapes in a given grid
     binary_grid = [[pixel if pixel in colors else -1 for pixel in row] for row in grid] #turns all pixels that aren't the right color into -1
@@ -91,6 +91,7 @@ import json
 import time
 
 def test_constraints(puzzle_func,puzzle_id,p,iters,debug=0):
+    assert p!=0
     file = open("evaluation/"+puzzle_id+".json")
     data = json.load(file)
     file.close()
@@ -111,11 +112,13 @@ def test_constraints(puzzle_func,puzzle_id,p,iters,debug=0):
     
     for iter in range(iters):
         for input,output in examples:
-            new_output = [[pixel if random.random()>p else COLORS[random.randint(0,9)] for pixel in row] for row in output]
-            tests.append(puzzle_func(input,new_output)==([input,new_output] in examples))
+            new_output = output
+            while [input,new_output] in examples:
+                new_output = [[pixel if random.random()>p else COLORS[random.randint(0,9)] for pixel in row] for row in output]
+            tests.append(not puzzle_func(input,new_output))
             if debug==2:
-                if not (puzzle_func(input,new_output)==([input,new_output] in examples)):
-                    print([input,new_output],iter)
+                if puzzle_func(input,new_output):
+                    print(input,'\n',new_output,iter)
 
     if debug==1:
         print(tests)
