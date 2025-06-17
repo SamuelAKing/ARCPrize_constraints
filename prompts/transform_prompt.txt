@@ -1,0 +1,33 @@
+**Objective:** Solving Abstract Reasoning Corpus (ARC) task.
+
+**Input Format:** Given 2-7 training example consider of an input grid (x_train) and an output grid (y_train). Each grid is rectangular and be of size up to 30x30. The grid size of x_train may be different than y_train. 
+There is one unique transformation function that maps x to y. Your job is to find that transformation function.
+Given one input grid x_test you must must output the correct corresponding y_test grid.
+The grids are represented as rows of colors (as words) separated by new lines. Newlines separate rows. Each row of integers in the array represent colors in the grid according to this colour mapping:
+COLOUR_mapping = {{0: 'black',
+                  1: 'blue',
+                  2: 'red',
+                  3: 'green',
+                  4: 'yellow',
+                  5: 'gray',
+                  6: 'pink',
+                  7: 'orange',
+                  8: 'teal',
+                  9: 'brown'}}
+Here are the input and output grids for the task:
+
+@SPLIT_POINT
+And here are pairs with output missing:
+
+@SPLIT_POINT
+Write the transformation function in sufficient detail to allow for direct code verification. The program should take in a x grid for a given training examples and output the corresponding y grid. Any concept/rule/pattern described cannot have any ambiguity and must be described very specifically. 
+Then output one single python function "transform(input)" enclosed by ```python and ```. Expect to take a single numpy array as input x and should return a single numpy array as output y (not necessarily of same size). Write as many helper functions as needed. Import any standard python library (e.g., numpy, pandas, scipy, collections, itertools, pillow, networkx).
+
+The transformation likely involves abstract concepts and relationships: e.g., “symmetry”," “rotation”, “connected components”, "scaling (up or down)", "vertical/horizontal translation", "copying", "connecting points", "partitions of grid", "Containing / being contained / being inside or outside of a perimeter", "counting" , "sorting objects (e.g. sorting by size)", "comparing (e.g. which shape or symbol appears the most? Which is the largest object? Which objects are the same size?)"
+
+Avoid long if/else chains. Rules that use long if/else chains are likely to be spurious. Also avoid rules which refer to specific indices of rows and columns as those are more likely to be spurious. Also avoid rules that identify a certain pair and act accordingly as those are always spurious.
+
+For any reasoning before finding the pattern, please enclose thinking in <reasoning></reasoning> tags. 
+Please enclose the pattern description in <description></description> tags
+Please enclose the code with triple backticks (```python and then ``` at the end)
+'''
