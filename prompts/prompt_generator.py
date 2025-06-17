@@ -33,18 +33,23 @@ def print_shape(grid):
         output += '\n'
     return output
 
-def prompt(puzzle_id):
+def prompt(puzzle_id,type):
 
     file = open("evaluation/"+puzzle_id+".json")
     data = json.load(file)
     file.close()
 
-    text_file = open("prompts/constraint_prompt.txt")
+    if type == "transform":
+        text_file = open("prompts/transform_prompt.txt")
+    if type == "constraints":
+        text_file = open("prompts/constraint_prompt.txt")
+    if type == "code":
+        text_file = open("prompts/programmed_constraint_prompt.txt")
     text_stencil = text_file.read().split("@SPLIT_POINT")
 
     text = text_stencil[0]
     for idx,case in enumerate(data['train']):
-        text += 'Pair' + str(idx)
+        text += 'Pair ' + str(idx) + '\n'
         input = case['input']
         output = case['output']
         text += "Input:\n"+print_shape(input) +"Output:\n"+ print_shape(output)
@@ -54,42 +59,43 @@ def prompt(puzzle_id):
         output = case['output']
         text += "Input:\n"+print_shape(input)
     text += text_stencil[2]
-    constraints_file = open("prompts/constraints.json")
-    text += json.load(constraints_file)[puzzle_id]
-    constraints_file.close()
-    text += text_stencil[3]
+    if type != "transform":
+        constraints_file = open("prompts/constraints.json")
+        text += json.load(constraints_file)[type][puzzle_id]
+        constraints_file.close()
+        text += text_stencil[3]
 
     print(text)
 
 claude_grid = """
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green teal teal teal teal black black black black black black black black black black 
-yellow yellow yellow yellow black black black black black green green green green green green green teal teal teal teal black black black black black black black black black black 
-black black black black black black black black black green green green green green green green teal teal teal teal black black black black black black black black black black 
-yellow yellow yellow black black black black black black green green green green green green green teal black black black black black black black black black black black black 
-yellow yellow yellow yellow black black black black black green green green green green green green black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
+black black black black black black black black black black green green green green green black black black black black black black black black black black black black black black 
+black black black black black black black black black black black green green green green green black teal teal teal teal black black black black black black black black black 
+black black black yellow yellow yellow yellow black black green green green green green green green black teal teal teal teal black black black black black black black black black 
+black black black yellow black black black black black green green green green green green green black teal teal teal teal black black black black black black black black black 
+black black yellow yellow yellow black black black black black green green green green green green black teal teal teal teal black black black black black black black black black 
+black black black yellow yellow yellow yellow black black green green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-pink green green green green green green green green green green green green green green green black black black black black black black black black black black black black black 
-pink pink green green green green green green green green green green green green green green black black black black black black black black black black black black black black 
-pink pink pink green green green green green green green green green green green green green black black black black black black black black black black black black black black 
-pink pink pink pink green green green green green green green green green green green green red red red red black black black black black black black black black black 
-black black black black black black black black black green green green green green green green red red red red black black black black black black black black black black 
-black black black black black black black black black green green green green green green green red red red red black black black black black black black black black black 
-black black black black black black black black black green green green green green green green red red black black black black black black black black black black black black 
+black black black black black black black black black green green green green green green black black black black black black black black black black black black black black black 
+black black black black black black black black black green green green green green green black black black black black black black black black black black black black black black 
+pink black black black black black black black black black green green green green green black black black black black black black black black black black black black black black 
+pink pink black black black black black black black black green green green green green green black black black black black black black black black black black black black black 
+pink pink pink black black black black black black green green green green green green green black black black black black black black black black black black black black black 
+pink pink pink pink black black black black black green green green green green green green black red red red red black black black black black black black black black 
+black black black black black black black black black green green green green green green black black red red red red black black black black black black black black black 
+black black black black black black black black black black green green green green green black black red red red red black black black black black black black black black 
+black black black black black black black black black black black green green green green green black red red red red black black black black black black black black black 
+black black black black black black black black black black green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green blue blue blue blue black black black black black black black black black black 
-black black black black black black black black black green green green green green green green blue blue blue blue black black black black black black black black black black 
-black black black black black black black black black green green green green green green green blue blue blue blue black black black black black black black black black black 
-black black black black black black black black black green green green green green green green blue blue black black black black black black black black black black black black 
+black black black black black black black black black black green green green green green green black blue blue blue black black black black black black black black black black 
+black black black black black black black black black green green green green green green green black blue blue blue black black black black black black black black black black 
+black black black black black black black black black green green green green green green green black blue blue blue black black black black black black black black black black 
+black black black black black black black black black green green green green green green black black blue black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black
 """
@@ -112,5 +118,5 @@ def display(claude_grid):
 
     img.show()
 
-# display(claude_grid)
-prompt("16b78196")
+display(claude_grid)
+# prompt("16b78196","code")

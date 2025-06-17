@@ -13,6 +13,7 @@ And here are pairs with output missing:
 
 Here is a list of constraints that accurately and completely describe the task. If they are all satisfied, the proposed solution is correct, and if one or more of them, isn't satisfied, the proposed solution is incorrect:
 @SPLIT_POINT
+
 Here is a list of definitions that may have been used in the constraints. They can be usefull to understand the constraints and to structure your reasoning:
 Shape: a shape is a set of pixels (of the same color or whose colors are drawn from a specified set of colors) in which each pixel has a path of adjacent pixels to every other pixel.
 Here, adjacency can either be defined by orthogonal adjacency, or orthogonal and diagonal adjacency. 
