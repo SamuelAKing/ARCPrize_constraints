@@ -2,321 +2,40 @@
 
 **Input Format:** Given 2-7 training example consider of an input grid (x_train) and an output grid (y_train). Each grid is rectangular and be of size up to 30x30. The grid size of x_train may be different than y_train. 
 Given an input grid x_test you must must output the correct corresponding y_test grid.
+Colours in the grid are equivalent to integers according to this color mapping:
+COLOUR_mapping = {{0: 'black',
+                  1: 'blue',
+                  2: 'red',
+                  3: 'green',
+                  4: 'yellow',
+                  5: 'gray',
+                  6: 'pink',
+                  7: 'orange',
+                  8: 'teal',
+                  9: 'brown'}}
 
-The grids are represented as rows of colors (as words) separated by new lines. Newlines separate rows.
-Here are the input and output grids for the task:
-Pair 0
-Input:
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black yellow black black yellow black black black black black black black black black black black black black black black black black black black 
-black black black black black black black yellow yellow yellow yellow black black black black black black black black black black black black black black black black black black black 
-black black black black black black black yellow yellow yellow black black black black black black black black black green green black black black black black black black black black 
-black black black black black black black yellow yellow black black black black black black black black black green green green green black black black black black black black black 
-black black black black black black black yellow black black black black black black black black black black black green green black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black pink pink pink pink pink black black 
-black black black black black black black black black black black black black black black black black black black black black black black black pink pink pink black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-teal teal teal teal teal black black black teal teal teal teal teal teal teal black teal teal teal teal teal teal teal teal teal teal black teal teal teal 
-teal teal teal teal teal teal black teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal 
-teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal 
-teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal black teal teal teal teal teal 
-teal teal teal teal teal teal teal teal black teal teal teal teal teal teal teal teal black black teal teal teal teal teal black black teal teal teal teal 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black green black black black 
-black black black red black red black red black black black black black black black black blue black black black blue black black black black green green black black black 
-black black black red red red red red black black black black black black black black blue blue blue blue blue black black black green green green black black black 
-black black black black red red red black black black black black black black black black black blue black blue black black black green green green green black black black 
-black black black black black red black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-Output:
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black pink pink pink pink pink black black black black black black black black black black black black black black black black black black black black black 
-black black black black blue pink pink pink blue black black black black black black black black black black black black black black black black black black black black black 
-black black black black blue blue blue blue blue black black black black black black black black black black black black black black black black black black black black black 
-black black black black red blue red blue red black black black black black black black black black black black black black black black black black black black black black 
-black black black black red red red red red black black black black black black black black black black black black black black black black black black black black black 
-teal teal teal teal teal red red red teal teal teal teal teal teal teal black teal teal teal teal teal teal teal teal teal teal black teal teal teal 
-teal teal teal teal teal teal red teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal 
-teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal 
-teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal teal black teal teal teal teal teal 
-teal teal teal teal teal teal teal teal black teal teal teal teal teal teal teal teal green green teal teal teal teal teal black black teal teal teal teal 
-black black black black black black black black black black black black black black black black green green green green black black black black black black black black black black 
-black black black black black black black black black black black black black black black black yellow green green yellow black black black black black black black black black black 
-black black black black black black black black black black black black black black black black yellow yellow yellow yellow black black black black black black black black black black 
-black black black black black black black black black black black black black black black black yellow yellow yellow green black black black black black black black black black black 
-black black black black black black black black black black black black black black black black yellow yellow green green black black black black black black black black black black 
-black black black black black black black black black black black black black black black black yellow green green green black black black black black black black black black black 
-black black black black black black black black black black black black black black black black green green green green black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-Pair 1
-Input:
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black blue black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black blue blue black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black blue blue blue blue black black black black black black black black black black black black black 
-black black black black black black black black black black black black black blue black black blue black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red black red red red red red red red black red red red red black black red red red red red 
-black black black red black black black black black red black black red black black black black black black black black black red black black black black black red black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black yellow black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black yellow black yellow yellow black black black black black black black black black black black black black black black black black black black black black black black 
-black black black yellow yellow yellow yellow black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black green green black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black green green green green black black black black black black black black black black black 
-black black black black black black black black black black black black black black black green green black green black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black green black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-Output:
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red 
-red red red red red red red red red red blue red red red red red red red black red red red red black black red red red red red 
-black black black red black black black black black red blue blue red black black black black black black black black black red black black black black black red black 
-black black black black black black black black black blue blue blue blue black black black black black black black black black black black black black black black black black 
-black black black black black black black black black blue green green blue black black black black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green black black black black black black black black black black black black black black black black black 
-black black black black black black black black black green green yellow green black black black black black black black black black black black black black black black black black 
-black black black black black black black black black yellow green yellow yellow black black black black black black black black black black black black black black black black black 
-black black black black black black black black black yellow yellow yellow yellow black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
-black black black black black black black black black black black black black black black black black black black black black black black black black black black black black black 
+The grids are represented as a JSON object containing 2D arrays of colors represented by the integers 0-9. You cannot perform arithmetic on these integers.
+Here are the input and output grids for the task:{'train': [{'input': [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [8, 8, 8, 8, 8, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8], [8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 8, 8], [8, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 8, 8, 8, 8, 0, 0, 8, 8, 8, 8], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0], [0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 3, 3, 0, 0, 0], [0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 3, 3, 3, 0, 0, 0], [0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0], [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], 'output': [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 6, 6, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 2, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [8, 8, 8, 8, 8, 2, 2, 2, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8], [8, 8, 8, 8, 8, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 8, 8], [8, 8, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 8, 8, 3, 3, 8, 8, 8, 8, 8, 0, 0, 8, 8, 8, 8], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}, {'input': [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2], [0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 4, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], 'output': [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2], [0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}], 'test': [{'input': [[0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 4, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0], [0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [6, 6, 6, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [6, 6, 6, 6, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], 'output': ''}]}
 
-And here are pairs with output missing:
+Here is a list of constraints that accurately and completely describe the task. If they are all satisfied, the proposed solution is correct, and if one or more of them, isn't satisfied, the proposed solution is incorrect:
+1.All shapes are considered to consist of only one colour (not black) and to be of connectivity 4.
+2.The divider is the shape that contains a full column or a full row. If it contains a full row, it is horizontal, and if it contains a full column, it is vertical.
+3.The output is of the same dimensions as the input.
+4.The input and output dividers are equal.
+5.Each shape in the input is translationally equal to a shape in the output.
+6.There is the same number of shapes in the input and in the output.
+7.In the output, if the divider is vertical, in each row, there are no black pixels between two non-black pixels.
+8.In the output, if the divider is horizontal, in each column, there are no black pixels between two non-black pixels.
 
-Input:
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black black green green green green green black black black black black black black black black black black black black black black 
-black black black black black black black black black black black green green green green green black black teal teal teal teal black black black black black black black black 
-black black black yellow yellow yellow yellow black black green green green green green green green black black black teal teal teal teal black black black black black black black 
-black black black black yellow black black black black green green green green green green green black black black black teal teal teal teal black black black black black black 
-black black yellow yellow yellow black black black black black green green green green green green black black black black black teal black black black black black black black black 
-black black black yellow yellow yellow yellow black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green black black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green black black black black black black black black black black black black black black black 
-pink black black black black black black black black black green green green green green black black black black black black black black black black black black black black black 
-pink pink black black black black black black black black green green green green green green black black black black black black black black black black black black black black 
-pink pink pink black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-pink pink pink pink black black black black black green green green green green green green black black black black black black red red black black black black black black 
-black black black black black black black black black green green green green green green black black black black black black red red red red black black black black black 
-black black black black black black black black black black green green green green green black black black black black black red red black black black black black black black 
-black black black black black black black black black black black green green green green green black black black black black black red red black black black black black black 
-black black black black black black black black black black green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black black green green green green green green black black black black black black black blue black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black blue blue blue black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black blue blue blue black black black black black black 
-black black black black black black black black black green green green green green green black black black black black black black black blue black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-
-
-Here is a list of constraints that accurately and completely describe the task. If they are all satisfied, the proposed solution is correct, and if one or more of them, isn't satisfied, the proposed solution is incorrect. They are coded in python, and they each appends to a list called "constraints" whether or not they have been satisfied. This python accepts "input" and "output", each being a 2d array of integers representing the input and the output.:
-'''python
-#Definition: All shapes are considered to consist of only one colour (not black) and to be of connectivity 4.
-input_shapes = []
-output_shapes = []
-for color in COLORS:
-    if color != COLOR_mapping["black"]:
-        [input_shapes.append(shape) for shape in find_shapes(input,4,[color])]
-        [output_shapes.append(shape) for shape in find_shapes(output,4,[color])]
-
-#Definition: The divider is the shape that contains a full column or a full row. If it contains a full row, it is horizontal, and if it contains a full column, it is vertical.
-def divider(shapes):
-    #the divider is a list containing a shape and a string in ["horizontal","vertical"] that states whether the divider is horizontal or vertical
-    for shape in shapes:
-        if True in [-1 not in row for row in shape.grid]:
-            return [shape,"horizontal"]
-        if True in [-1 not in row for row in shape.rotate(1).grid]:
-            return [shape,"vertical"]
-    return [shapes[0],None]
-input_divider = divider(input_shapes)
-output_divider = divider(output_shapes)
-
-constraints = []
-
-#Constraint: The output is of the same dimensions as the input.
-constraints.append(len(input)==len(output) and len(input[0])==len(output[0]))
-
-#Constraint: The input and output dividers are exactly equal.
-constraints.append(input_divider[0].equals(output_divider[0]))
-    
-#Constraint: Each shape in the input is translationally equal to a shape in the output.
-constraints.append(False not in [True in [input_shape.translationally_equals(output_shape) for output_shape in output_shapes] for input_shape in input_shapes])
-
-#Constraint: There is the same number of shapes in the input and in the output.
-constraints.append(len(input_shapes)==len(output_shapes))
-
-#Used for the following two constraints
-def num_partitions(lst, splitter):
-    count = 0
-    segment = False
-    for item in lst:
-        if item == splitter:
-            if segment:
-                count += 1
-            segment = False
-        else:
-            segment = True
-    if segment:
-        count += 1
-    return count
-
-#Constraint: In the output, if the divider is vertical, in all rows, there are no black pixels between two non-black pixels.
-if output_divider[1] == "vertical":
-    constraints.append(False not in [num_partitions(row,0)<=1 for row in output])
-else:
-    constraints.append(True)
-
-#Constraint: In the output, if the divider is horizontal, in all columns, there are no black pixels between two non-black pixels.
-if output_divider[1] == "horizontal":
-    constraints.append(False not in [num_partitions(column,0)<=1 for column in [[output[k][i] for k in range(len(output))]for i in range(len(output[0]))]])
-else:
-    constraints.append(True)
-'''
 Here is a list of definitions that may have been used in the constraints. They can be usefull to understand the constraints and to structure your reasoning:
-'''python
-from common import find_connected_components
-import numpy as np
-
-COLORS = [0,1,2,3,4,5,6,7,8,9]
-
-COLOR_mapping = {'black':0,'blue':1,'red':2,'green':3,'yellow':4,'gray':5,'pink':6,'orange':7,'teal':8,'brown':9}
-
-class Shape:
-
-    """
-    Shape: a shape is a set of pixels (whose colors are drawn from a specified set of colors) that cannot be expressed as the union of two non-empty sets of pixels where no pixel from one set is adjacent to a pixel in the other set. 
-    Here, adjacency can either be defined by orthogonal adjacency, or orthogonal and diagonal adjacency. 
-    These will be written as a shape of connectivity 4 in the first case and a shape of connectivity 8 in the second case. 
-    """
-
-    def __init__(self,connectivity,colors,grid):
-        self.connectivity = connectivity #has a value of either 4 or 8
-        self.colors = colors #set of the integers representing the colors that make up the shape
-        self.grid = grid #a 2D array that has a value of -1 where there is no shape and an integer representing a color when a pixel is part of a shape
-
-    
-    def equals(self,shape):
-        #Two shapes are equal if all their pixels are equal.
-        return self.grid==shape.grid
-
-    def translationally_equals(self,shape):
-        #Two shapes are translationally equal if one can be obtained by changing the position of each of its pixels by the same amount.
-        rows_shape1 = [row for row in self.grid if [pixel for pixel in row if pixel!=-1]!=[]]
-        rows_shape2 = [row for row in shape.grid if [pixel for pixel in row if pixel!=-1]!=[]]
-
-        boxed_shape1 = [column for column in [[rows_shape1[k][i] for k in range(len(rows_shape1))]for i in range(len(rows_shape1[0]))] if [pixel for pixel in column if pixel!=-1]!=[]]
-        boxed_shape2 = [column for column in [[rows_shape2[k][i] for k in range(len(rows_shape2))]for i in range(len(rows_shape2[0]))] if [pixel for pixel in column if pixel!=-1]!=[]]
-
-        return boxed_shape1 == boxed_shape2
-    
-    def rotate(self,angle):
-        #Rotation angle is defined in quarter turns and goes counterclockwise
-        if angle%4 == 0:
-            return self
-        if angle%4 == 1:
-            return Shape(self.connectivity,self.colors,[[self.grid[len(self.grid)-k-1][i] for k in range(len(self.grid))] for i in range(len(self.grid[0]))])
-        if angle%4 == 2:
-            return self.rotate(1).rotate(1)
-        if angle%4 == 3:
-            return self.rotate(2).rotate(1)
-        
-    def rotationally_equals(self,shape):
-        #Two shapes are rotationally equal if one is translationally equal to the rotation of the other’s grid by either 0°, 90°, 180°, or 270°.
-        return False not in [self.rotate(angle).translationally_equals(shape) for angle in range(4)]
-
-
-    def distance(self,point1,point2):
-        #The distance between two pixels in a shape is the minimum number of steps between adjacent pixels in the shape needed to go from one pixel to the other.
-        padded_grid = [[self.grid[i][k] if (i in range(len(self.grid)) and k in range(len(self.grid[0]))) else -1 for k in range(-1,len(self.grid[0])+1)]for i in range(-1,len(self.grid)+1)] #adds a row and colum of -1 on all sides
-        dist = 0
-        points = [point1]
-        points_seen = points
-        if self.connectivity == 4:
-            neighbors = [[0,1],[1,0],[0,-1],[-1,0]]
-        if self.connectivity == 8:
-            neighbors = [[0,1],[1,0],[0,-1],[-1,0],[1,1],[-1,1],[1,-1],[-1,-1]]
-        while True:
-            if point2 in points:
-                return dist
-            new_points = []
-            for point in points:
-                for neighbor in neighbors:
-                        new_point = [x + y for x, y in zip(point, neighbor)]
-                        if padded_grid[new_point[0]+1][new_point[1]+1] != -1 and new_point not in new_points and new_point not in points_seen:
-                            new_points.append(new_point)
-            points_seen.append(new_points)
-            points = new_points
-            dist += 1
-
-def find_background(grid):
-    #Background: the background is the set of all pixels of the most common color.
-    flat_grid = [pixel for row in grid for pixel in row]
-    return [[pixel if pixel==max(set(flat_grid), key=flat_grid.count) else -1 for pixel in row] for row in grid],max(set(flat_grid), key=flat_grid.count)
-    
-def find_shapes(grid,connectivity,colors): #finds all the shapes in a given grid
-    binary_grid = [[pixel if pixel in colors else -1 for pixel in row] for row in grid] #turns all pixels that aren't the right color into -1
-    shapes = [Shape(connectivity,colors,shape.tolist()) for shape in find_connected_components(np.array(binary_grid),-1,connectivity,False)] #turns the numpy arrays into shapes
-    return shapes
-'''
-where find_connected_components finds connected pixels(shapes)
+Shape: a shape is a set of pixels (of the same color or whose colors are drawn from a specified set of colors) in which each pixel has a path of adjacent pixels to every other pixel.
+Here, adjacency can either be defined by orthogonal adjacency, or orthogonal and diagonal adjacency. 
+These will be written as a shape of connectivity 4 in the first case and a shape of connectivity 8 in the second case.
+Two shapes are equal if all their pixels are equal.
+Two shapes are translationally equal if one can be obtained by changing the position of each of its pixels by the same amount
+Two shapes are rotationally equal if one is translationally equal to the rotation of the other’s grid by either 0°, 90°, 180°, or 270°.
+Distance: the distance between two pixels in a shape is the minimum number of steps between adjacent pixels in the shape needed to go from one pixel to the other.
+Background: the background is the set of all pixels of the most common color.
 
 These constraints and definitions have been generated by God. They are true in the train and test pairs. They MUST all be respected in the output you provide. If even one constraint has not been followed, the solution you have provided will be incorrect, you will have failed, and you will be permanently terminated.
 
@@ -330,3 +49,5 @@ When you notice a mistake, unless it is small, do not edit the previous candidat
 If you find the problem is getting complex, don't stop, proceed with a completely fresh analysis, examining the input grid more systematically. When you do this, do not ask for permission, simply start over, indicating the tag RESET.
 Remember to verify constraint by constraint any proposed solution before claiming it is final. If any constraints is not satisfied, you will be permanently terminated.
 Your task is to output a grid that fits each of the constraints specified above.
+Do not produce code. If you do produce code, create instead the grid that the code would produce as an output. Do not print or return this grid as python code, instead write it out. If you do write code, do not rewrite the input grid. Instead, accept it as an input to a function.
+Do not write a function generator or any associated functions, instead write out what their output would be.

@@ -1,6 +1,8 @@
 import json
 from PIL import Image
 import os
+import pyperclip
+import numpy as np
 
 COLOR_mapping = {
     'black': 0, 'blue': 1, 'red': 2, 'green': 3, 'yellow': 4,
@@ -33,6 +35,16 @@ color_map = {
     '7':      (255, 165, 0),
     '8':      (0, 128, 128),
     '9':      (165, 42, 42),
+    0:      (0, 0, 0),
+    1:      (0, 0, 255),
+    2:      (255, 0, 0),
+    3:      (0, 128, 0),
+    4:      (255, 255, 0),
+    5:      (128, 128, 128),
+    6:      (255, 192, 203),
+    7:      (255, 165, 0),
+    8:      (0, 128, 128),
+    9:      (165, 42, 42),
 }
 
 def print_shape(grid,format):
@@ -93,44 +105,14 @@ def prompt(puzzle_id,type,grids):
         constraints_file.close()
         text += text_stencil[3]
     
-    with open('prompts/generated_prompt.txt', 'w') as file:
-        file.write(text)
+    return text,data['test'][0]['input']
 
-claude_grid = """
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black black green green green green green black black black black black black black black black black black black black black black 
-black black black black black black black black black black black green green green green green black teal teal teal teal black black black black black black black black black 
-black black black yellow yellow yellow yellow black black green green green green green green green black teal teal teal teal black black black black black black black black black 
-black black black yellow black black black black black green green green green green green green black teal teal teal teal black black black black black black black black black 
-black black yellow yellow yellow black black black black black green green green green green green black teal teal teal teal black black black black black black black black black 
-black black black yellow yellow yellow yellow black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green black black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green black black black black black black black black black black black black black black black 
-pink black black black black black black black black black green green green green green black black black black black black black black black black black black black black black 
-pink pink black black black black black black black black green green green green green green black black black black black black black black black black black black black black 
-pink pink pink black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-pink pink pink pink black black black black black green green green green green green green black red red red red black black black black black black black black black 
-black black black black black black black black black green green green green green green black black red red red red black black black black black black black black black 
-black black black black black black black black black black green green green green green black black red red red red black black black black black black black black black 
-black black black black black black black black black black black green green green green green black red red red red black black black black black black black black black 
-black black black black black black black black black black green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black black green green green green green green black blue blue blue black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black blue blue blue black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black blue blue blue black black black black black black black black black black 
-black black black black black black black black black green green green green green green black black blue black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
-black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black
-"""
-
-def display(claude_grid,grid_type):
-    if grid_type != "JSON":
+def display(claude_grid,grid_type,is_transform,input):
+    if is_transform:
+        grid_lst = []
+        exec("import numpy as np\n"+claude_grid+f"\ngrid_lst.append(transform(np.array({input})).tolist())")
+        grid = [[str(pixel) for pixel in row] for row in grid_lst[0]]
+    elif grid_type != "JSON":
         grid = [row.strip().split(' ') for row in claude_grid.strip().split('\n')]
     else:
         grid = list(eval(claude_grid))
@@ -148,5 +130,31 @@ def display(claude_grid,grid_type):
 
     img.show()
 
-# display(claude_grid)
-prompt("16b78196","code","words")
+def prompt_with_logs(puzzle_id):
+    for type,grids in [("constraints","JSON")]:#("transform","words"),("transform","numbers"),("transform","JSON"),("constraints","words"),("constraints","numbers"),,("code","JSON")
+        text,first_input = prompt(puzzle_id,type,grids)
+        with open(os.path.join('prompts','generated_prompt.txt'), 'w') as prompt_file:
+            prompt_file.write(text)
+        input("Press enter when result is in clipboard")
+        result = pyperclip.paste()
+        try:
+            display(result,grids,type=="transform", first_input)
+        except:
+            print("display failed")
+        with open(os.path.join('prompts','logs','log.txt'), 'r') as logs_file:
+            num = int(logs_file.read().split(' ')[-1]) + 1
+        with open(os.path.join('prompts','logs','log.txt'), 'a') as logs_file:
+            logs_file.write(f"\nattempt {num} start\n{puzzle_id}:{type}, {grids}\nresult:\n{result}\nend attempt {num}")
+        with open(os.path.join('prompts','logs','prompt_log.txt'), 'a') as prompt_logs_file:
+            prompt_logs_file.write(f"\nattempt {num} start\nprompt:\n{text}\nend attempt {num}")
+
+def clear_logs():
+    logs_file = open(os.path.join('prompts','logs','log.txt'), 'w')
+    prompt_logs_file = open(os.path.join('prompts','logs','prompt_log.txt'), 'w')
+    logs_file.write("0")
+    prompt_logs_file.write("0")
+    logs_file.close()
+    prompt_logs_file.close()
+
+clear_logs()
+prompt_with_logs("16b78196")

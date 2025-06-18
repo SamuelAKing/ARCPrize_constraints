@@ -112,3 +112,5 @@ When you notice a mistake, unless it is small, do not edit the previous candidat
 If you find the problem is getting complex, don't stop, proceed with a completely fresh analysis, examining the input grid more systematically. When you do this, do not ask for permission, simply start over, indicating the tag RESET.
 Remember to verify constraint by constraint any proposed solution before claiming it is final. If any constraints is not satisfied, you will be permanently terminated.
 Your task is to output a grid that fits each of the constraints specified above.
+Do not produce code. If you do produce code, create instead the grid that the code would produce as an output. Do not print or return this grid as python code, instead write it out. If you do write code, do not rewrite the input grid. Instead, accept it as an input to a fucnction.
+Do not write a function generator or any associated functions, instead write out what their output would be.
