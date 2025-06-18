@@ -25,15 +25,21 @@ color_map = {
     'brown':  (165, 42, 42),
 }
 
-def print_shape(grid):
+def print_shape(grid,format):
     output = ''
-    for row in grid:
-        for pixel in row:
-            output += COLORS[pixel] + ' '
-        output += '\n'
+    if format == "words":
+        for row in grid:
+            for pixel in row:
+                output += COLORS[pixel] + ' '
+            output += '\n'
+    if format == "numbers":
+        for row in grid:
+            for pixel in row:
+                output += str(pixel) + ' '
+            output += '\n'
     return output
 
-def prompt(puzzle_id,type):
+def prompt(puzzle_id,type,grids):
 
     file = open("evaluation/"+puzzle_id+".json")
     data = json.load(file)
@@ -41,31 +47,44 @@ def prompt(puzzle_id,type):
 
     if type == "transform":
         text_file = open("prompts/transform_prompt.txt")
-    if type == "constraints":
+    elif type == "constraints":
         text_file = open("prompts/constraint_prompt.txt")
-    if type == "code":
+    elif type == "code":
         text_file = open("prompts/programmed_constraint_prompt.txt")
     text_stencil = text_file.read().split("@SPLIT_POINT")
 
     text = text_stencil[0]
-    for idx,case in enumerate(data['train']):
-        text += 'Pair ' + str(idx) + '\n'
-        input = case['input']
-        output = case['output']
-        text += "Input:\n"+print_shape(input) +"Output:\n"+ print_shape(output)
-    text += text_stencil[1]
-    for idx,case in enumerate(data['test']):
-        input = case['input']
-        output = case['output']
-        text += "Input:\n"+print_shape(input)
-    text += text_stencil[2]
+    if grids in ["words", "numbers"]:
+        if grids == "words":
+            text += "The grids are represented as rows of colors (as words) separated by new lines. Newlines separate rows.\nHere are the input and output grids for the task:\n"
+        elif grids == "numbers":
+            text += "The grids are represented as rows of colors represented by the integers 0-9 separated by new lines. Newlines separate rows. You cannot perform arithmetic on these integers.\nHere are the input and output grids for the task:\n"
+        for idx,case in enumerate(data['train']):
+            text += 'Pair ' + str(idx) + '\n'
+            input = case['input']
+            output = case['output']
+            text += "Input:\n"+print_shape(input,grids) +"Output:\n"+ print_shape(output,grids)
+        text += text_stencil[1]
+        for idx,case in enumerate(data['test']):
+            input = case['input']
+            output = case['output']
+            text += "Input:\n"+print_shape(input,grids)
+        text += text_stencil[2]
+    elif grids == "JSON":
+        text += "The grids are represented as a JSON object containing 2D arrays of colors represented by the integers 0-9. You cannot perform arithmetic on these integers.\nHere are the input and output grids for the task:"
+        new_dict = data.copy()
+        for idx in range(len(new_dict['test'])):
+            new_dict['test'][idx]['output'] = ""
+        text += str(new_dict)
+        text += text_stencil[2]
     if type != "transform":
         constraints_file = open("prompts/constraints.json")
         text += json.load(constraints_file)[type][puzzle_id]
         constraints_file.close()
         text += text_stencil[3]
-
-    print(text)
+    
+    with open('prompts/generated_prompt.txt', 'w') as file:
+        file.write(text)
 
 claude_grid = """
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black 
@@ -107,8 +126,6 @@ def display(claude_grid):
     cell_size = 20  # pixels per cell
     img = Image.new("RGB", (expected_size_1 * cell_size, expected_size_2 * cell_size))
 
-
-
     for y, row in enumerate(grid):
         for x, color in enumerate(row):
             rgb = color_map[color]
@@ -118,5 +135,5 @@ def display(claude_grid):
 
     img.show()
 
-display(claude_grid)
-# prompt("16b78196","code")
+# display(claude_grid)
+prompt("16b78196","code","numbers")

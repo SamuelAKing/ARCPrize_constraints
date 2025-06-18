@@ -2,10 +2,18 @@
 
 **Input Format:** Given 2-7 training example consider of an input grid (x_train) and an output grid (y_train). Each grid is rectangular and be of size up to 30x30. The grid size of x_train may be different than y_train. 
 Given an input grid x_test you must must output the correct corresponding y_test grid.
-The grids are represented as rows of colors (as words) separated by new lines. Newlines separate rows. 
-
-Here are the input and output grids for the task:
-
+Colours in the grid are equivalent to integers according to this color mapping:
+COLOUR_mapping = {{0: 'black',
+                  1: 'blue',
+                  2: 'red',
+                  3: 'green',
+                  4: 'yellow',
+                  5: 'gray',
+                  6: 'pink',
+                  7: 'orange',
+                  8: 'teal',
+                  9: 'brown'}}
+                  
 @SPLIT_POINT
 And here are pairs with output missing:
 
