@@ -23,6 +23,16 @@ color_map = {
     'orange': (255, 165, 0),
     'teal':   (0, 128, 128),
     'brown':  (165, 42, 42),
+    '0':      (0, 0, 0),
+    '1':      (0, 0, 255),
+    '2':      (255, 0, 0),
+    '3':      (0, 128, 0),
+    '4':      (255, 255, 0),
+    '5':      (128, 128, 128),
+    '6':      (255, 192, 203),
+    '7':      (255, 165, 0),
+    '8':      (0, 128, 128),
+    '9':      (165, 42, 42),
 }
 
 def print_shape(grid,format):
@@ -41,16 +51,16 @@ def print_shape(grid,format):
 
 def prompt(puzzle_id,type,grids):
 
-    file = open("evaluation/"+puzzle_id+".json")
+    file = open(os.path.join("evaluation",puzzle_id+".json"))
     data = json.load(file)
     file.close()
 
     if type == "transform":
-        text_file = open("prompts/transform_prompt.txt")
+        text_file = open(os.path.join("prompts","transform_prompt.txt"))
     elif type == "constraints":
-        text_file = open("prompts/constraint_prompt.txt")
+        text_file = open(os.path.join("prompts","constraint_prompt.txt"))
     elif type == "code":
-        text_file = open("prompts/programmed_constraint_prompt.txt")
+        text_file = open(os.path.join("prompts","programmed_constraint_prompt.txt"))
     text_stencil = text_file.read().split("@SPLIT_POINT")
 
     text = text_stencil[0]
@@ -78,7 +88,7 @@ def prompt(puzzle_id,type,grids):
         text += str(new_dict)
         text += text_stencil[2]
     if type != "transform":
-        constraints_file = open("prompts/constraints.json")
+        constraints_file = open(os.path.join("prompts","constraints.json"))
         text += json.load(constraints_file)[type][puzzle_id]
         constraints_file.close()
         text += text_stencil[3]
@@ -119,8 +129,11 @@ black black black black black black black black black green green green green gr
 black black black black black black black black black green green green green green green green black black black black black black black black black black black black black black
 """
 
-def display(claude_grid):
-    grid = [row.strip().split(' ') for row in claude_grid.strip().split('\n')]
+def display(claude_grid,grid_type):
+    if grid_type != "JSON":
+        grid = [row.strip().split(' ') for row in claude_grid.strip().split('\n')]
+    else:
+        grid = list(eval(claude_grid))
     expected_size_1 = len(grid)
     expected_size_2 = len(grid[0])
     cell_size = 20  # pixels per cell
@@ -136,4 +149,4 @@ def display(claude_grid):
     img.show()
 
 # display(claude_grid)
-prompt("16b78196","code","numbers")
+prompt("16b78196","code","words")
