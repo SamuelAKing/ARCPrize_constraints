@@ -131,7 +131,7 @@ def display(claude_grid,grid_type,is_transform,input):
     img.show()
 
 def prompt_with_logs(puzzle_id):
-    for type,grids in [("constraints","JSON")]:#("transform","words"),("transform","numbers"),("transform","JSON"),("constraints","words"),("constraints","numbers"),,("code","JSON")
+    for type,grids in [("transform","words"),("transform","numbers"),("transform","JSON"),("constraints","words"),("constraints","numbers"),("constraints","JSON"),("code","JSON")]:
         text,first_input = prompt(puzzle_id,type,grids)
         with open(os.path.join('prompts','generated_prompt.txt'), 'w') as prompt_file:
             prompt_file.write(text)
@@ -156,5 +156,4 @@ def clear_logs():
     logs_file.close()
     prompt_logs_file.close()
 
-clear_logs()
-prompt_with_logs("16b78196")
+prompt_with_logs("6e453dd6")
