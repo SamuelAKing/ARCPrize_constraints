@@ -1,1 +1,1120 @@
 0
+attempt 1 start
+6e453dd6:transform, words
+result:
+import numpy as np
+
+def transform(input_grid):
+    # Convert to numpy array if needed
+    if isinstance(input_grid, list):
+        # Convert color names to numbers
+        color_map = {'black': 0, 'blue': 1, 'red': 2, 'green': 3, 'yellow': 4, 
+                     'gray': 5, 'pink': 6, 'orange': 7, 'teal': 8, 'brown': 9}
+        grid = np.array([[color_map[cell] for cell in row] for row in input_grid])
+    else:
+        grid = input_grid.copy()
+    
+    rows, cols = grid.shape
+    
+    # Find the gray column (dividing line)
+    gray_col = None
+    for c in range(cols):
+        if np.all(grid[:, c] == 5):  # 5 is gray
+            gray_col = c
+            break
+    
+    if gray_col is None:
+        return grid
+    
+    # Create output grid
+    output_grid = grid.copy()
+    
+    # Get left and right sections
+    left_section = grid[:, :gray_col]
+    right_section = grid[:, gray_col+1:]
+    
+    # Find all black pixels (0) in left section and their positions
+    black_positions = []
+    for r in range(rows):
+        for c in range(gray_col):
+            if grid[r, c] == 0:  # black
+                black_positions.append((r, c))
+    
+    # Clear black pixels from their original positions in left section
+    for r in range(rows):
+        for c in range(gray_col):
+            if grid[r, c] == 0:
+                output_grid[r, c] = 6  # pink
+    
+    # Move black pixels to be adjacent to gray line (rightmost columns of left section)
+    # Group black pixels by row and find their relative positions
+    black_by_row = {}
+    for r, c in black_positions:
+        if r not in black_by_row:
+            black_by_row[r] = []
+        black_by_row[r].append(c)
+    
+    # For each row with black pixels, place them at the rightmost positions before gray
+    for r in black_by_row:
+        cols_with_black = sorted(black_by_row[r])
+        # Calculate how many columns to shift right to be adjacent to gray line
+        rightmost_black_col = max(cols_with_black)
+        shift = (gray_col - 1) - rightmost_black_col
+        
+        # Place black pixels in their new positions
+        for c in cols_with_black:
+            new_c = c + shift
+            if 0 <= new_c < gray_col:
+                output_grid[r, new_c] = 0  # black
+    
+    # Place red pixels on right side corresponding to original black positions
+    right_start = gray_col + 1
+    right_cols = cols - right_start
+    
+    for r, c in black_positions:
+        # Map original left position to corresponding right position
+        if c < right_cols:
+            right_c = right_start + c
+            if right_c < cols:
+                output_grid[r, right_c] = 2  # red
+    
+    return output_grid
+end attempt 1
+attempt 2 start
+6e453dd6:transform, numbers
+result:
+import numpy as np
+
+def transform(input_grid):
+    grid = input_grid.copy()
+    rows, cols = grid.shape
+    
+    # Find the gray (5) divider column
+    divider_col = None
+    for col in range(cols):
+        if all(grid[row, col] == 5 for row in range(rows)):
+            divider_col = col
+            break
+    
+    if divider_col is None:
+        return grid
+    
+    # Process each row
+    for row in range(rows):
+        # Get left side of divider
+        left_side = grid[row, :divider_col].copy()
+        
+        # Find black (0) pixels on left side
+        black_positions = np.where(left_side == 0)[0]
+        
+        if len(black_positions) > 0:
+            # Clear the left side (set to pink/6)
+            grid[row, :divider_col] = 6
+            
+            # Place black pixels adjacent to divider, preserving relative positions
+            shift_amount = divider_col - len(left_side)
+            for pos in black_positions:
+                new_pos = pos + shift_amount
+                if new_pos >= 0:
+                    grid[row, new_pos] = 0
+    
+    # Check for rows with bordered patterns and fill right side with red
+    for row in range(rows):
+        left_side = grid[row, :divider_col]
+        
+        # Check if this row has a black border with pink interior pattern
+        if has_bordered_pattern(left_side):
+            # Fill right side with red (2)
+            grid[row, divider_col+1:] = 2
+    
+    return grid
+
+def has_bordered_pattern(row_segment):
+    """Check if row segment contains black border with pink interior"""
+    if len(row_segment) < 3:
+        return False
+    
+    # Find sequences of black pixels
+    black_positions = np.where(row_segment == 0)[0]
+    if len(black_positions) < 2:
+        return False
+    
+    # Check for patterns where black pixels form borders around pink pixels
+    for i in range(len(black_positions) - 1):
+        start = black_positions[i]
+        end = black_positions[i + 1]
+        
+        # If there's a gap between black pixels, check if it contains pink
+        if end - start > 1:
+            interior = row_segment[start+1:end]
+            if len(interior) > 0 and any(interior == 6):
+                return True
+    
+    return False
+end attempt 2
+attempt 3 start
+6e453dd6:transform, JSON
+result:
+import numpy as np
+
+def transform(input_grid):
+    grid = np.array(input_grid)
+    height, width = grid.shape
+    
+    # Find the gray (5) vertical divider
+    gray_col = -1
+    for col in range(width):
+        if all(grid[row, col] == 5 for row in range(height)):
+            gray_col = col
+            break
+    
+    if gray_col == -1:
+        return grid  # No gray divider found
+    
+    # Create output grid as copy of input
+    output_grid = grid.copy()
+    
+    # Find rows with cross patterns (0-6-0 sequences) on the left side
+    special_rows = set()
+    
+    for row in range(height):
+        for col in range(gray_col - 2):  # Need at least 3 columns for 0-6-0
+            if (col + 2 < gray_col and 
+                grid[row, col] == 0 and 
+                grid[row, col + 1] == 6 and 
+                grid[row, col + 2] == 0):
+                special_rows.add(row)
+                break
+    
+    # For special rows, fill right side with red (2)
+    for row in special_rows:
+        for col in range(gray_col + 1, width):
+            if output_grid[row, col] == 6:  # Only change pink cells to red
+                output_grid[row, col] = 2
+    
+    # Consolidate black patterns on the left side
+    for row in range(height):
+        # Find black cells in this row on the left side
+        black_positions = []
+        for col in range(gray_col):
+            if grid[row, col] == 0:
+                black_positions.append(col)
+        
+        if black_positions:
+            # Clear original black positions
+            for col in range(gray_col):
+                if output_grid[row, col] == 0:
+                    output_grid[row, col] = 6
+            
+            # Place consolidated black pattern
+            if len(black_positions) > 0:
+                # Try to maintain the original pattern but shift it
+                start_col = max(0, gray_col - len(black_positions) - 1)
+                for i, _ in enumerate(black_positions):
+                    if start_col + i < gray_col:
+                        # Reconstruct pattern based on original
+                        original_pattern_start = min(black_positions)
+                        pattern_offset = black_positions[i] - original_pattern_start
+                        new_pos = start_col + pattern_offset
+                        if 0 <= new_pos < gray_col:
+                            output_grid[row, new_pos] = 0
+    
+    return output_grid
+end attempt 3
+attempt 4 start
+6e453dd6:constraints, words
+result:
+pink pink pink pink pink pink pink pink gray pink pink pink 
+pink pink pink pink pink pink pink pink gray pink pink pink 
+pink pink pink black black black black pink gray red red red 
+pink pink pink black pink black pink pink gray red red red 
+pink pink pink black black black black black gray pink pink pink 
+pink pink pink pink pink pink black pink gray pink pink pink 
+pink pink pink pink pink pink black pink gray pink pink pink 
+pink pink pink pink pink pink pink pink gray pink pink pink 
+pink pink pink pink pink black black black gray red red red 
+pink pink pink pink pink pink pink black gray pink pink pink 
+pink pink pink pink pink black black black gray pink pink pink 
+pink pink pink pink pink pink pink pink gray pink pink pink 
+pink pink pink pink pink black black black gray pink pink pink 
+pink pink pink pink pink black pink black gray red red red 
+pink pink pink pink pink black black black gray pink pink pink 
+pink pink pink pink pink pink pink pink gray pink pink pink 
+pink pink pink black black black pink pink gray red red red 
+pink pink pink black pink black pink pink gray red red red 
+pink pink black black black pink pink pink gray pink pink pink 
+pink pink pink black pink black pink pink gray red red red 
+pink pink pink black black black pink pink gray pink pink pink 
+pink pink pink pink pink pink pink pink gray pink pink pink 
+pink pink pink pink pink pink black black gray pink pink pink 
+pink pink pink pink pink pink black pink gray red red red 
+pink pink pink pink pink pink black black gray pink pink pink
+end attempt 4
+attempt 5 start
+6e453dd6:constraints, numbers
+result:
+6 6 6 6 6 6 6 6 5 6 6 6
+6 6 6 6 6 6 6 6 5 6 6 6
+6 6 6 0 0 0 0 6 5 6 6 6
+6 6 6 0 6 0 6 6 5 2 2 2
+6 6 6 0 0 0 0 0 5 6 6 6
+6 6 6 6 6 6 6 0 5 6 6 6
+6 6 6 6 6 6 6 0 5 6 6 6
+6 6 6 6 6 6 6 6 5 6 6 6
+6 6 6 6 6 0 0 0 5 6 6 6
+6 6 6 6 6 6 6 0 5 6 6 6
+6 6 6 6 6 0 0 0 5 6 6 6
+6 6 6 6 6 6 6 6 5 6 6 6
+6 6 6 6 0 0 0 0 5 6 6 6
+6 6 6 6 0 6 6 0 5 2 2 2
+6 6 6 6 0 0 0 0 5 6 6 6
+6 6 6 6 6 6 6 6 5 6 6 6
+6 6 0 0 0 6 6 6 5 6 6 6
+6 6 0 6 0 6 6 6 5 2 2 2
+6 0 0 0 0 6 6 6 5 6 6 6
+6 6 0 6 0 6 6 6 5 2 2 2
+6 6 0 0 0 6 6 6 5 6 6 6
+6 6 6 6 6 6 6 6 5 6 6 6
+6 6 6 6 6 6 0 0 5 6 6 6
+6 6 6 6 6 6 0 6 5 2 2 2
+6 6 6 6 6 6 0 0 5 6 6 6
+end attempt 5
+attempt 6 start
+6e453dd6:constraints, JSON
+result:
+[[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 0, 0, 0, 0, 6, 6, 5, 6, 6, 6],
+[6, 6, 0, 6, 0, 6, 6, 6, 5, 2, 2, 2],
+[6, 6, 0, 0, 0, 0, 0, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 0, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 0, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 6, 6, 0, 5, 2, 2, 2],
+[6, 6, 6, 6, 0, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 0, 0, 0, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 0, 6, 0, 6, 6, 5, 2, 2, 2],
+[6, 6, 0, 0, 0, 0, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 0, 6, 0, 6, 6, 5, 2, 2, 2],
+[6, 6, 6, 0, 0, 0, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 0, 6, 0, 5, 2, 2, 2],
+[6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6]]
+end attempt 6
+attempt 7 start
+6e453dd6:code, JSON
+result:
+[[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 6, 0, 6, 5, 2, 2, 2],
+[6, 6, 6, 0, 0, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 0, 5, 2, 2, 2],
+[6, 6, 6, 6, 6, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 6, 6, 0, 5, 2, 2, 2],
+[6, 6, 6, 6, 0, 0, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 0, 0, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 6, 0, 6, 5, 2, 2, 2],
+[6, 6, 6, 0, 0, 0, 0, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 0, 6, 0, 6, 5, 2, 2, 2],
+[6, 6, 6, 6, 0, 0, 0, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 0, 0, 5, 6, 6, 6],
+[6, 6, 6, 6, 6, 6, 0, 6, 5, 2, 2, 2],
+[6, 6, 6, 6, 6, 6, 0, 0, 5, 6, 6, 6]]
+end attempt 7
+attempt 8 start
+71e489b6:transform, words
+result:
+import numpy as np
+
+def transform(input_grid):
+    grid = input_grid.copy()
+    rows, cols = grid.shape
+    
+    # Find isolated blue cells within black regions
+    isolated_blue_cells = []
+    
+    for i in range(rows):
+        for j in range(cols):
+            if grid[i, j] == 1:  # blue cell
+                # Check if it's surrounded by black cells
+                is_isolated = True
+                for di in [-1, 0, 1]:
+                    for dj in [-1, 0, 1]:
+                        if di == 0 and dj == 0:
+                            continue
+                        ni, nj = i + di, j + dj
+                        if 0 <= ni < rows and 0 <= nj < cols:
+                            if grid[ni, nj] != 0:  # not black
+                                is_isolated = False
+                                break
+                        # If out of bounds, treat as black (boundary condition)
+                    if not is_isolated:
+                        break
+                
+                if is_isolated:
+                    isolated_blue_cells.append((i, j))
+    
+    # Create 3x3 orange cross patterns for each isolated blue cell
+    for i, j in isolated_blue_cells:
+        # Create cross pattern: center and 4 adjacent cells become orange
+        cross_positions = [
+            (i, j),      # center
+            (i-1, j),    # up
+            (i+1, j),    # down
+            (i, j-1),    # left
+            (i, j+1)     # right
+        ]
+        
+        for ci, cj in cross_positions:
+            if 0 <= ci < rows and 0 <= cj < cols:
+                grid[ci, cj] = 7  # orange
+    
+    return grid
+end attempt 8
+attempt 9 start
+71e489b6:transform, numbers
+result:
+import numpy as np
+
+def transform(input_grid):
+    grid = input_grid.copy()
+    rows, cols = grid.shape
+    
+    # Create output grid (might need to be larger to accommodate 3x3 patterns)
+    output = grid.copy()
+    
+    # Find isolated pixels
+    isolated_pixels = []
+    
+    for i in range(rows):
+        for j in range(cols):
+            current_color = grid[i, j]
+            
+            # Get neighbors (8-connected)
+            neighbors = []
+            for di in [-1, 0, 1]:
+                for dj in [-1, 0, 1]:
+                    if di == 0 and dj == 0:
+                        continue
+                    ni, nj = i + di, j + dj
+                    if 0 <= ni < rows and 0 <= nj < cols:
+                        neighbors.append(grid[ni, nj])
+            
+            if len(neighbors) == 0:
+                continue
+                
+            # Count neighbors that are different from current pixel
+            different_neighbors = sum(1 for n in neighbors if n != current_color)
+            
+            # If most neighbors are different, this is an isolated pixel
+            if different_neighbors > len(neighbors) / 2:
+                isolated_pixels.append((i, j, current_color))
+    
+    # Replace isolated pixels with 3x3 patterns
+    for i, j, original_color in isolated_pixels:
+        # Create 3x3 pattern: center is original color, surrounding is orange (7)
+        for di in [-1, 0, 1]:
+            for dj in [-1, 0, 1]:
+                ni, nj = i + di, j + dj
+                if 0 <= ni < rows and 0 <= nj < cols:
+                    if di == 0 and dj == 0:
+                        # Center pixel keeps original color
+                        output[ni, nj] = original_color
+                    else:
+                        # Surrounding pixels become orange
+                        output[ni, nj] = 7
+    
+    return output
+end attempt 9
+attempt 10 start
+71e489b6:transform, JSON
+result:
+import numpy as np
+
+def transform(input_grid):
+    # Convert to numpy array and make a copy for output
+    grid = np.array(input_grid)
+    output = grid.copy()
+    
+    rows, cols = grid.shape
+    
+    # Find isolated black cells surrounded by blue cells
+    for i in range(1, rows - 1):  # Skip edges to ensure we can check all 8 neighbors
+        for j in range(1, cols - 1):
+            if grid[i, j] == 0:  # Found a black cell
+                # Check if all 8 neighbors are blue (1)
+                neighbors = [
+                    grid[i-1, j-1], grid[i-1, j], grid[i-1, j+1],
+                    grid[i, j-1],                 grid[i, j+1],
+                    grid[i+1, j-1], grid[i+1, j], grid[i+1, j+1]
+                ]
+                
+                # If all neighbors are blue, create 3x3 orange pattern
+                if all(neighbor == 1 for neighbor in neighbors):
+                    # Set all 8 neighbors to orange (7), keep center black (0)
+                    for di in [-1, 0, 1]:
+                        for dj in [-1, 0, 1]:
+                            if di != 0 or dj != 0:  # Don't change the center cell
+                                output[i + di, j + dj] = 7
+    
+    return output
+end attempt 10
+attempt 11 start
+71e489b6:constraints, words
+result:
+blue blue blue blue blue black black black black black black black black black black black 
+blue blue blue blue blue black black black black black black black black black black black 
+blue blue blue blue blue black black black black black black black black black black black 
+blue blue blue blue blue blue blue blue blue blue orange black orange blue black black 
+blue blue blue blue blue blue blue blue blue blue orange orange orange blue black orange 
+blue blue blue blue blue black blue blue blue blue orange orange orange blue black black 
+blue blue blue orange black orange blue blue blue blue blue blue blue blue black orange 
+blue blue orange black orange blue blue blue blue blue blue blue blue blue black black 
+blue blue blue orange orange orange blue blue blue blue orange black orange blue black black 
+blue blue blue blue blue blue blue blue blue blue orange black orange blue orange black 
+blue blue blue blue blue blue blue blue blue blue blue orange orange orange black black 
+blue blue blue blue blue orange black orange blue blue blue blue blue blue black black 
+blue blue blue blue blue black black black black black black black black black black black 
+blue blue blue blue blue black black black black black black black black black black black 
+blue blue blue blue blue black black black black black black black black black black black 
+blue blue blue blue blue black black black black black black black black black black black 
+end attempt 11
+attempt 12 start
+71e489b6:constraints, numbers
+result:
+1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0
+1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0
+1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 1 1 7 0 7 1 0 0
+1 1 1 1 1 1 1 1 1 1 7 7 7 1 7 0
+1 1 1 1 7 0 7 1 1 1 1 1 1 1 0 0
+1 1 1 7 0 7 1 1 1 1 1 1 1 0 0 1
+1 1 7 0 7 1 1 1 1 1 1 1 1 1 0 0
+1 1 7 7 7 1 1 1 1 1 7 0 7 1 0 0
+1 1 1 1 1 1 1 1 1 1 7 0 7 1 1 0
+1 1 1 1 1 1 7 7 7 1 7 7 7 1 0 0
+1 1 1 1 1 7 0 7 1 1 1 1 1 1 0 0
+1 1 1 1 1 7 7 7 0 0 0 0 0 0 0 0
+1 1 1 1 1 0 0 0 0 0 0 7 7 7 0 0
+1 1 1 1 1 0 0 0 0 0 0 7 0 7 0 0
+1 1 1 1 1 0 0 0 0 0 0 7 7 7 0 0
+end attempt 12
+attempt 13 start
+71e489b6:constraints, JSON
+result:
+[[1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [1, 1, 1, 7, 7, 1, 1, 1, 1, 1, 7, 0, 7, 1, 0, 0],
+ [1, 1, 1, 7, 0, 7, 1, 1, 1, 1, 7, 7, 7, 1, 0, 0],
+ [1, 1, 1, 1, 7, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+ [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+ [1, 1, 7, 0, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 0, 7, 1, 0, 0],
+ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 0, 7, 1, 1, 0],
+ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+ [1, 1, 1, 1, 7, 7, 0, 7, 1, 1, 1, 1, 1, 1, 0, 0],
+ [1, 1, 1, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [1, 1, 1, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0],
+ [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+end attempt 13
+attempt 14 start
+71e489b6:code, JSON
+result:
+[
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 7, 7, 7, 1, 1, 1, 1, 7, 0, 7, 7, 7, 0],
+    [1, 1, 1, 7, 0, 7, 1, 1, 1, 1, 7, 7, 7, 7, 0, 0],
+    [1, 1, 1, 7, 7, 0, 7, 1, 1, 1, 1, 1, 1, 7, 7, 7],
+    [1, 1, 7, 7, 0, 7, 1, 1, 1, 1, 1, 1, 1, 7, 0, 0],
+    [1, 7, 7, 0, 7, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7],
+    [1, 7, 7, 7, 1, 1, 1, 1, 1, 1, 7, 0, 7, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 0, 7, 7, 7, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 7, 0, 7, 1, 1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 7, 7, 7, 0, 0]
+]
+end attempt 14
+attempt 15 start
+78332cb0:transform, words
+result:
+import numpy as np
+
+def transform(input_grid):
+    # Convert to numpy array if not already
+    if not isinstance(input_grid, np.ndarray):
+        input_grid = np.array(input_grid)
+    
+    # Find pink separators (color 6)
+    pink_rows = []
+    pink_cols = []
+    
+    # Find horizontal pink separators (entire rows that are pink)
+    for i in range(input_grid.shape[0]):
+        if np.all(input_grid[i, :] == 6):
+            pink_rows.append(i)
+    
+    # Find vertical pink separators (entire columns that are pink)
+    for j in range(input_grid.shape[1]):
+        if np.all(input_grid[:, j] == 6):
+            pink_cols.append(j)
+    
+    # Extract sections
+    sections = []
+    
+    # Determine row boundaries
+    row_boundaries = [0] + pink_rows + [input_grid.shape[0]]
+    row_boundaries = sorted(list(set(row_boundaries)))
+    
+    # Determine column boundaries  
+    col_boundaries = [0] + pink_cols + [input_grid.shape[1]]
+    col_boundaries = sorted(list(set(col_boundaries)))
+    
+    # Extract each section
+    for i in range(len(row_boundaries) - 1):
+        for j in range(len(col_boundaries) - 1):
+            r_start, r_end = row_boundaries[i], row_boundaries[i + 1]
+            c_start, c_end = col_boundaries[j], col_boundaries[j + 1]
+            
+            # Skip if this is a separator row/column
+            if r_start in pink_rows or c_start in pink_cols:
+                continue
+                
+            # Adjust boundaries to exclude separators
+            if r_start > 0 and (r_start - 1) in pink_rows:
+                pass  # r_start is already correct
+            if c_start > 0 and (c_start - 1) in pink_cols:
+                pass  # c_start is already correct
+                
+            section = input_grid[r_start:r_end, c_start:c_end]
+            if section.size > 0:
+                sections.append(section)
+    
+    # Determine output arrangement
+    num_row_sections = len(row_boundaries) - 1 - len(pink_rows)
+    num_col_sections = len(col_boundaries) - 1 - len(pink_cols)
+    
+    if num_row_sections == 1 and num_col_sections > 1:
+        # Horizontal arrangement -> stack vertically
+        output_sections = []
+        for i, section in enumerate(sections):
+            output_sections.append(section)
+            if i < len(sections) - 1:  # Add horizontal separator
+                separator = np.full((1, section.shape[1]), 6)
+                output_sections.append(separator)
+        output = np.vstack(output_sections)
+        
+    elif num_row_sections > 1 and num_col_sections == 1:
+        # Vertical arrangement -> arrange horizontally
+        output_sections = []
+        for i, section in enumerate(sections):
+            output_sections.append(section)
+            if i < len(sections) - 1:  # Add vertical separator
+                separator = np.full((section.shape[0], 1), 6)
+                output_sections.append(separator)
+        output = np.hstack(output_sections)
+        
+    else:
+        # 2D grid arrangement -> linearize vertically
+        output_sections = []
+        for i, section in enumerate(sections):
+            output_sections.append(section)
+            if i < len(sections) - 1:  # Add horizontal separator
+                separator = np.full((1, section.shape[1]), 6)
+                output_sections.append(separator)
+        output = np.vstack(output_sections)
+    
+    return output
+end attempt 15
+attempt 16 start
+78332cb0:transform, numbers
+result:
+import numpy as np
+
+def transform(input_grid):
+    grid = np.array(input_grid)
+    
+    # Find pink (6) lines
+    pink_rows = []
+    pink_cols = []
+    
+    # Check for horizontal pink lines (entire rows of 6)
+    for i in range(grid.shape[0]):
+        if np.all(grid[i, :] == 6):
+            pink_rows.append(i)
+    
+    # Check for vertical pink lines (entire columns of 6)
+    for j in range(grid.shape[1]):
+        if np.all(grid[:, j] == 6):
+            pink_cols.append(j)
+    
+    # Extract sections
+    sections = []
+    
+    if len(pink_rows) > 0 and len(pink_cols) > 0:
+        # 2D grid of sections - extract in row-major order
+        row_boundaries = [0] + pink_rows + [grid.shape[0]]
+        col_boundaries = [0] + pink_cols + [grid.shape[1]]
+        
+        for i in range(len(row_boundaries) - 1):
+            for j in range(len(col_boundaries) - 1):
+                r_start, r_end = row_boundaries[i], row_boundaries[i + 1]
+                c_start, c_end = col_boundaries[j], col_boundaries[j + 1]
+                
+                # Skip if this is a pink line
+                if r_start in pink_rows or c_start in pink_cols:
+                    continue
+                    
+                section = grid[r_start:r_end, c_start:c_end]
+                sections.append(section)
+        
+        # Stack sections vertically with pink separators
+        result_parts = []
+        for i, section in enumerate(sections):
+            result_parts.append(section)
+            if i < len(sections) - 1:  # Add separator except after last section
+                separator = np.full((1, section.shape[1]), 6)
+                result_parts.append(separator)
+        
+        return np.vstack(result_parts)
+    
+    elif len(pink_rows) > 0:
+        # Vertical arrangement of sections - rearrange horizontally
+        row_boundaries = [0] + pink_rows + [grid.shape[0]]
+        
+        for i in range(len(row_boundaries) - 1):
+            r_start, r_end = row_boundaries[i], row_boundaries[i + 1]
+            
+            # Skip pink rows
+            if r_start in pink_rows:
+                continue
+                
+            section = grid[r_start:r_end, :]
+            sections.append(section)
+        
+        # Arrange sections horizontally with pink separators
+        result_parts = []
+        for i, section in enumerate(sections):
+            result_parts.append(section)
+            if i < len(sections) - 1:  # Add separator except after last section
+                separator = np.full((section.shape[0], 1), 6)
+                result_parts.append(separator)
+        
+        return np.hstack(result_parts)
+    
+    elif len(pink_cols) > 0:
+        # Horizontal arrangement of sections - rearrange vertically
+        col_boundaries = [0] + pink_cols + [grid.shape[1]]
+        
+        for i in range(len(col_boundaries) - 1):
+            c_start, c_end = col_boundaries[i], col_boundaries[i + 1]
+            
+            # Skip pink columns
+            if c_start in pink_cols:
+                continue
+                
+            section = grid[:, c_start:c_end]
+            sections.append(section)
+        
+        # Arrange sections vertically with pink separators
+        result_parts = []
+        for i, section in enumerate(sections):
+            result_parts.append(section)
+            if i < len(sections) - 1:  # Add separator except after last section
+                separator = np.full((1, section.shape[1]), 6)
+                result_parts.append(separator)
+        
+        return np.vstack(result_parts)
+    
+    else:
+        # No pink lines found, return original grid
+        return grid
+end attempt 16
+attempt 17 start
+78332cb0:transform, JSON
+result:
+import numpy as np
+
+def transform(input_grid):
+    grid = np.array(input_grid)
+    height, width = grid.shape
+    
+    # Find vertical separators (pink columns that span full height)
+    vertical_separators = []
+    for col in range(width):
+        if np.all(grid[:, col] == 6):
+            vertical_separators.append(col)
+    
+    # Find horizontal separators (pink rows that span full width)
+    horizontal_separators = []
+    for row in range(height):
+        if np.all(grid[row, :] == 6):
+            horizontal_separators.append(row)
+    
+    if vertical_separators:
+        # Input has vertical separators -> stack sections vertically
+        sections = []
+        
+        # Extract sections between vertical separators
+        start_col = 0
+        for sep_col in vertical_separators + [width]:
+            if start_col < sep_col:
+                section = grid[:, start_col:sep_col]
+                sections.append(section)
+            start_col = sep_col + 1
+        
+        # Stack sections vertically with horizontal separators
+        result_parts = []
+        for i, section in enumerate(sections):
+            result_parts.append(section)
+            if i < len(sections) - 1:  # Add separator except after last section
+                separator_row = np.full((1, section.shape[1]), 6)
+                result_parts.append(separator_row)
+        
+        return np.vstack(result_parts)
+    
+    elif horizontal_separators:
+        # Input has horizontal separators -> arrange sections horizontally
+        sections = []
+        
+        # Extract sections between horizontal separators
+        start_row = 0
+        for sep_row in horizontal_separators + [height]:
+            if start_row < sep_row:
+                section = grid[start_row:sep_row, :]
+                sections.append(section)
+            start_
+end attempt 17
+attempt 18 start
+78332cb0:constraints, words
+result:
+orange orange orange orange orange 
+orange yellow yellow yellow orange 
+yellow yellow orange yellow orange 
+orange yellow yellow yellow orange 
+orange orange orange orange orange 
+pink pink pink pink pink 
+orange orange orange orange orange 
+yellow yellow yellow yellow orange 
+orange orange orange yellow yellow 
+orange yellow yellow yellow orange 
+orange orange orange orange orange 
+pink pink pink pink pink 
+orange orange orange orange orange 
+orange yellow yellow yellow orange 
+orange yellow orange yellow orange 
+orange yellow orange yellow yellow 
+orange orange orange orange orange 
+pink pink pink pink pink 
+orange orange orange orange orange 
+orange yellow orange yellow yellow 
+orange yellow orange yellow orange 
+yellow yellow yellow yellow orange 
+orange orange orange orange orange
+end attempt 18
+attempt 19 start
+78332cb0:constraints, numbers
+result:
+7 7 7 7 7
+7 4 4 4 7
+4 4 7 4 7
+7 4 4 4 7
+7 7 7 7 7
+6 6 6 6 6
+7 7 7 7 7
+7 4 7 4 4
+7 4 7 4 7
+4 4 4 4 7
+7 7 7 7 7
+6 6 6 6 6
+7 7 7 7 7
+4 4 4 4 7
+7 7 7 4 4
+7 4 4 4 7
+7 7 7 7 7
+6 6 6 6 6
+7 7 7 7 7
+7 4 4 4 7
+7 4 7 4 7
+7 4 7 4 4
+7 7 7 7 7
+end attempt 19
+attempt 20 start
+78332cb0:constraints, JSON
+result:
+[[7, 7, 7, 7, 7],
+ [7, 4, 4, 4, 7],
+ [4, 4, 7, 4, 7],
+ [7, 4, 4, 4, 7],
+ [7, 7, 7, 7, 7],
+ [6, 6, 6, 6, 6],
+ [7, 7, 7, 7, 7],
+ [7, 4, 4, 4, 7],
+ [7, 4, 7, 4, 7],
+ [7, 4, 7, 4, 4],
+ [7, 7, 7, 7, 7],
+ [6, 6, 6, 6, 6],
+ [7, 7, 7, 7, 7],
+ [4, 4, 4, 4, 7],
+ [7, 7, 7, 4, 4],
+ [7, 4, 4, 4, 7],
+ [7, 7, 7, 7, 7],
+ [6, 6, 6, 6, 6],
+ [7, 7, 7, 7, 7],
+ [7, 4, 7, 4, 4],
+ [7, 4, 7, 4, 7],
+ [4, 4, 4, 4, 7],
+ [7, 7, 7, 7, 7]]
+end attempt 20
+attempt 21 start
+78332cb0:code, JSON
+result:
+# Test Case 1 Solution
+[
+  [7, 7, 7, 7, 7],
+  [7, 4, 4, 4, 7], 
+  [4, 4, 7, 4, 7],
+  [7, 4, 4, 4, 7],
+  [7, 7, 7, 7, 7],
+  [6, 6, 6, 6, 6],
+  [7, 4, 7, 4, 4],
+  [7, 4, 7, 4, 7], 
+  [4, 4, 4, 4, 7],
+  [7, 7, 7, 7, 7],
+  [7, 7, 7, 7, 7],
+  [6, 6, 6, 6, 6],
+  [7, 4, 4, 4, 4],
+  [7, 7, 7, 4, 4],
+  [7, 4, 4, 4, 7],
+  [7, 7, 7, 7, 7],
+  [7, 7, 7, 7, 7],
+  [6, 6, 6, 6, 6],
+  [7, 7, 7, 7, 7],
+  [7, 4, 4, 4, 7],
+  [7, 4, 7, 4, 7],
+  [7, 4, 7, 4, 4],
+  [7, 7, 7, 7, 7]
+]
+end attempt 21
+attempt 22 start
+7b5033c1:transform, words
+result:
+import numpy as np
+from collections import Counter
+
+def transform(input_grid):
+    # Convert to numpy array if not already
+    if not isinstance(input_grid, np.ndarray):
+        input_grid = np.array(input_grid)
+    
+    # Find the background color (most frequent)
+    flat_grid = input_grid.flatten()
+    color_counts = Counter(flat_grid)
+    background_color = color_counts.most_common(1)[0][0]
+    
+    # Find all non-background colors and their positions
+    color_positions = {}
+    rows, cols = input_grid.shape
+    
+    for r in range(rows):
+        for c in range(cols):
+            color = input_grid[r, c]
+            if color != background_color:
+                if color not in color_positions:
+                    color_positions[color] = []
+                color_positions[color].append((r, c))
+    
+    # Sort colors by their first vertical appearance
+    color_order = []
+    for r in range(rows):
+        for c in range(cols):
+            color = input_grid[r, c]
+            if color != background_color and color not in color_order:
+                color_order.append(color)
+    
+    # Create output sequence
+    output_sequence = []
+    for color in color_order:
+        count = len(color_positions[color])
+        output_sequence.extend([color] * count)
+    
+    # Convert to column vector
+    return np.array(output_sequence).reshape(-1, 1)
+end attempt 22
+attempt 23 start
+7b5033c1:transform, numbers
+result:
+import numpy as np
+from collections import Counter
+
+def transform(input_grid):
+    # Find the background color (most frequent color)
+    flat_grid = input_grid.flatten()
+    color_counts = Counter(flat_grid)
+    background_color = color_counts.most_common(1)[0][0]
+    
+    # Find all non-background colors and their positions
+    color_info = {}
+    rows, cols = input_grid.shape
+    
+    for r in range(rows):
+        for c in range(cols):
+            color = input_grid[r, c]
+            if color != background_color:
+                if color not in color_info:
+                    color_info[color] = {'count': 0, 'min_row': r}
+                color_info[color]['count'] += 1
+                color_info[color]['min_row'] = min(color_info[color]['min_row'], r)
+    
+    # Sort colors by their topmost row occurrence
+    sorted_colors = sorted(color_info.keys(), key=lambda x: color_info[x]['min_row'])
+    
+    # Create output column
+    output_cells = []
+    for color in sorted_colors:
+        count = color_info[color]['count']
+        output_cells.extend([color] * count)
+    
+    # Convert to numpy array with single column
+    if len(output_cells) == 0:
+        return np.array([[]])
+    
+    return np.array(output_cells).reshape(-1, 1)
+end attempt 23
+attempt 24 start
+7b5033c1:transform, JSON
+result:
+import numpy as np
+from collections import Counter
+
+def transform(input_grid):
+    # Convert to numpy array if not already
+    grid = np.array(input_grid)
+    
+    # Find background color (most frequent)
+    flat_grid = grid.flatten()
+    color_counts = Counter(flat_grid)
+    background_color = color_counts.most_common(1)[0][0]
+    
+    # Find all non-background colors and their positions
+    color_info = {}
+    
+    for i in range(grid.shape[0]):
+        for j in range(grid.shape[1]):
+            color = grid[i, j]
+            if color != background_color:
+                if color not in color_info:
+                    color_info[color] = {'rows': [], 'cols': []}
+                color_info[color]['rows'].append(i)
+                color_info[color]['cols'].append(j)
+    
+    # Calculate vertical span and topmost row for each color
+    color_spans = {}
+    for color, positions in color_info.items():
+        min_row = min(positions['rows'])
+        max_row = max(positions['rows'])
+        vertical_span = max_row - min_row + 1
+        color_spans[color] = {'span': vertical_span, 'top_row': min_row}
+    
+    # Sort colors by their topmost row
+    sorted_colors = sorted(color_spans.keys(), key=lambda c: color_spans[c]['top_row'])
+    
+    # Build output column
+    output = []
+    for color in sorted_colors:
+        span = color_spans[color]['span']
+        output.extend([color] * span)
+    
+    # Convert to numpy array with shape (n, 1)
+    return np.array(output).reshape(-1, 1)
+end attempt 24
+attempt 25 start
+7b5033c1:constraints, words
+result:
+blue
+blue
+blue
+blue
+blue
+blue
+blue
+blue
+green
+green
+green
+green
+green
+teal
+teal
+teal
+teal
+teal
+teal
+yellow
+yellow
+yellow
+yellow
+yellow
+yellow
+end attempt 25
+attempt 26 start
+7b5033c1:constraints, numbers
+result:
+1
+1
+1
+1
+1
+3
+3
+3
+8
+8
+8
+8
+8
+8
+4
+4
+4
+4
+4
+4
+3
+3
+1
+1
+1
+end attempt 26
+attempt 27 start
+7b5033c1:constraints, JSON
+result:
+[[1], [1], [1], [1], [1], [3], [3], [3], [8], [8], [8], [8], [8], [8], [4], [4], [4], [4], [4], [4], [1], [1], [1], [3], [3]]
+end attempt 27
+attempt 28 start
+7b5033c1:code, JSON
+result:
+[[1], [1], [1], [1], [1], [3], [3], [3], [8], [8], [8], [8], [8], [8], [4], [4], [4], [4], [4], [4], [1], [1], [1], [3], [3]]
+end attempt 28

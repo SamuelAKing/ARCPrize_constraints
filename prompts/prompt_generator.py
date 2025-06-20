@@ -119,7 +119,7 @@ def display(claude_grid,grid_type,is_transform,input):
     expected_size_1 = len(grid)
     expected_size_2 = len(grid[0])
     cell_size = 20  # pixels per cell
-    img = Image.new("RGB", (expected_size_1 * cell_size, expected_size_2 * cell_size))
+    img = Image.new("RGB", (expected_size_2 * cell_size, expected_size_1 * cell_size))
 
     for y, row in enumerate(grid):
         for x, color in enumerate(row):
@@ -127,7 +127,6 @@ def display(claude_grid,grid_type,is_transform,input):
             for dy in range(cell_size):
                 for dx in range(cell_size):
                     img.putpixel((x * cell_size + dx, y * cell_size + dy), rgb)
-
     img.show()
 
 def prompt_with_logs(puzzle_id):
@@ -156,4 +155,4 @@ def clear_logs():
     logs_file.close()
     prompt_logs_file.close()
 
-prompt_with_logs("6e453dd6")
+prompt_with_logs("7b5033c1")
